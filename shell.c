@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "shell.h"
+
+int interactive = 0;
 
 int main() {
-    int interactive = isatty(STDIN_FILENO);
+    interactive = isatty(STDIN_FILENO);
 
+    /* int shell_init = 0;   upon sighandling */
     while(1) {
         if (interactive) {
             printf("min> ");
@@ -22,6 +26,7 @@ int main() {
             free(buff);
             break;
         }
+        
         free(buff); 
     }
     
