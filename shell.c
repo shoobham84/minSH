@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "shell.h"
+#include "command.h"
 
 int interactive = 0;
 
