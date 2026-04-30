@@ -1,3 +1,4 @@
+/* this file is never to be included in a .c file except for the main shell.c, hence no include guards in this file*/
 /* data structures used by shell */
 #include <sys/types.h>
 
