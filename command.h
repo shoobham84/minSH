@@ -9,6 +9,8 @@
 #define W_VARIABLE (1 << 1) /* Word starts with $, req. env lookup */
 #define W_OPERATOR (1 << 2) /* Word is a shell operator {|, <, >, &, ;, >>}*/
 
+
+
 /* structure representing a word */
 typedef struct word_desc {
     char *word;
@@ -36,10 +38,38 @@ typedef struct redirect {
 } REDIRECT;
 
 
-typedef struct command {
-    int flags;
-    int line;
+/* describes types of commands, minsh only supports 2 types as of now */
+typedef enum {
+    c_simple,
+    c_connection
+} COMMAND_TYPE;
 
+
+/* defines connectors for c_connection command type */
+typedef enum {
+    c_pipe, /* | */
+    c_semi, /* ; */
+    c_and,  /* && */
+    c_or    /* || */
+} CONNECTOR;
+
+
+/* defines what a command is */
+typedef struct command {
+    COMMAND_TYPE type;
+    int flags;
+    union {
+        struct {
+            WORD_LIST *words;
+            REDIRECT *redirects;
+        } simple;
+        struct {
+            struct command *first;
+            struct command *second;
+            CONNECTOR connector;
+        } connection;
+    } value;
 } COMMAND;
+
 
 #endif 
