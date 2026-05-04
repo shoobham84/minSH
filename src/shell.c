@@ -6,6 +6,10 @@
 #include "shell.h"
 #include "command.h"
 
+#ifndef COREUTILS_PATH
+    #define COREUTILS_PATH "/dev/null"
+#endif
+
 int interactive = 0;
 int shell_init = 1;
 
