@@ -1,4 +1,7 @@
-/* tail -  prints last n lines of its input. n is set to 10 by default */
+/* tail -  prints last n lines of its input. n is set to 10 by default
+ * tail -n for altering n */
+
+
 
 #define _POSIX_C_SOURCE 200809L
 
@@ -8,8 +11,27 @@
 
 #define DEFAULT_LINES 10
 
-int main() {
+int main(int argc, char **argv) {
     int n = DEFAULT_LINES;
+
+    while(--argc > 0 && (*++argv)[0] == '-') {
+        if (*(argv + 1) != NULL) {
+            switch ((*argv)[1]) {
+                case 'n':
+                    n = atoi(*++argv);
+                    --argc;
+                    break;
+                default:
+                    fprintf(stderr, "error: illegal flag\n");
+                    return EXIT_FAILURE;
+            }
+        }
+        else if (strlen(*argv) > 2)
+            n = atoi((*argv) + 2);
+    }
+
+    if (n <= 0)
+        n = DEFAULT_LINES;
 
     char **line_ptrs = calloc(n, sizeof(char *));
     size_t *line_sizes = calloc(n, sizeof(size_t));
