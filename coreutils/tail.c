@@ -1,10 +1,6 @@
 /* tail -  prints last n lines of its input. n is set to 10 by default
  * tail -n for altering n */
 
-
-
-#define _POSIX_C_SOURCE 200809L
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

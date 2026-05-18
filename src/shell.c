@@ -1,5 +1,3 @@
-#define _POSIX_C_SOURCE 200809L   /* for getline read loop */
-
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -35,8 +33,9 @@ int main() {
             break;
         }
         // printf("%s", buff);
+        // COMMAND *cmnd = parse_line(buff, len);
         free(buff); 
     }
     
-    return 0;
+    return EXIT_SUCCESS;
 }

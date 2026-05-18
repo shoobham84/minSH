@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -Wextra -g 
+CFLAGS= -std=c2x -D_POSIX_C_SOURCE=200809L  -Wall -Wextra -g 
 
 SHELL_ROOT=$(CURDIR)
 COREUTILS_PATH=$(SHELL_ROOT)/coreutils
