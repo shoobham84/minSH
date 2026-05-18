@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DEFAULT_LINES 10
+constexpr int DEFAULT_LINES = 10;
 
 int main(int argc, char **argv) {
     int n = DEFAULT_LINES;

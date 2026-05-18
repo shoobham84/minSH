@@ -1,13 +1,13 @@
 /*command.h -- structures used internally to represent commands*/
 
-#if !defined(_COMMAND_H_)
+#ifndef _COMMAND_H_
 #define _COMMAND_H_
 
 /* values for flags for WORD_DESC */
-#define W_NORMAL 0
-#define W_QUOTED (1 << 0) /* Word contains quotes, do not split */
-#define W_VARIABLE (1 << 1) /* Word starts with $, req. env lookup */
-#define W_OPERATOR (1 << 2) /* Word is a shell operator {|, <, >, &, ;, >>}*/
+constexpr int W_NORMAL = 0;
+constexpr int W_QUOTED = (1 << 0); /* Word contains quotes, do not split */
+constexpr int W_VARIABLE = (1 << 1); /* Word starts with $, req. env lookup */
+constexpr int W_OPERATOR = (1 << 2); /* Word is a shell operator {|, <, >, &, ;, >>}*/
 
 
 
@@ -40,17 +40,17 @@ typedef struct redirect {
 
 /* describes types of commands, minsh only supports 2 types as of now */
 typedef enum {
-    c_simple,
-    c_connection
+    C_SIMPLE,
+    C_CONNECTION
 } COMMAND_TYPE;
 
 
 /* defines connectors for c_connection command type */
 typedef enum {
-    c_pipe, /* | */
-    c_semi, /* ; */
-    c_and,  /* && */
-    c_or    /* || */
+    C_PIPE, /* | */
+    C_SEMI, /* ; */
+    C_AND,  /* && */
+    C_OR    /* || */
 } CONNECTOR;
 
 
