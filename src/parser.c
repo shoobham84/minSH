@@ -8,6 +8,19 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn);
 static WORD_LIST *token_list(char *line, size_t len);
 static COMMAND *parse_tokens(WORD_LIST **rest);
 
+/* auxilliary functions */
+static int is_char_quote(char c) {
+    return c == '"' || c == '\'';
+}
+
+static int is_char_variable(char c) {
+    return c == '$';
+}
+
+static int is_char_operator(char c) {
+    return c == '|' || c == '&' || c == ';' || c == '<' || c == '>';
+}
+
 static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn) 
 {
     while(*posn < len && isspace((unsigned char)line[*posn]))
@@ -21,7 +34,7 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
     char c;
 
     /* checks for quoted strings in the command */
-    if ((c = line[start]) == '"' || c == '\'') {
+    if (is_char_quote((c = line[start]))) {
         word->flags = W_QUOTED;
         char quote = c;
         (*posn)++;
@@ -36,7 +49,7 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
     }
 
     /* checks for variables in the command; variables in minsh start with a '$' */
-    if (c == '$') {
+    if (is_char_variable(c)) {
         word->flags = W_VARIABLE;
         (*posn)++;
 
