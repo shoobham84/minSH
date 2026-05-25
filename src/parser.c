@@ -5,7 +5,7 @@
 #include <string.h>
 
 static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn);
-static WORD_LIST *token_list(char *line, size_t len);
+static WORD_LIST *token_list(const char *line, size_t len);
 static COMMAND *parse_tokens(WORD_LIST **rest);
 
 /* auxilliary functions */
@@ -48,6 +48,11 @@ static int scan_operator(const char *line, size_t len, size_t posn, size_t *op_l
 }
 
 /* main parser functions */
+
+/* tokenizer
+ * scans from line[*pos] (line is the word being parsed) and returns the next WORD_DESC token.
+ * returns a NULL when line fully iterated upon 
+ * */
 static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn) 
 {
     while(*posn < len && isspace((unsigned char)line[*posn]))
@@ -104,4 +109,37 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
     word->flags = W_NORMAL;
     return word;
 
+}
+
+/* token_list
+ * calls tokenizer() repeatedly and links every WORD_DESC into a linked list of WORD_LIST while preserving the input order
+ */
+static WORD_LIST *token_list(const char *line, size_t len)
+{
+    WORD_LIST dummy_head;           /* uses an empty dummy_head as the first element of the linked list of WORD_DESCs (token_list) */
+    dummy_head.word = NULL;
+    dummy_head.next = NULL;
+
+    WORD_LIST *tail = &dummy_head;  
+
+    size_t posn = 0;
+
+    while(posn < len) {
+        WORD_DESC *wrd = tokenizer(line, len, &posn);
+        if (wrd == NULL)
+            break;
+
+        WORD_LIST *token_node = calloc(1, sizeof *token_node);
+        if (token_node == NULL) {
+            free(wrd->word);
+            free(wrd);
+            break;
+        }
+
+        token_node->word = wrd;         
+        token_node->next = NULL;
+        tail->next = token_node;
+        tail=token_node;
+    }
+    return dummy_head.next;    /* the dummy_head.next is the first real token */
 }
