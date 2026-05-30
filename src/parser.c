@@ -6,7 +6,7 @@
 
 static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn);
 static WORD_LIST *token_list(const char *line, size_t len);
-static COMMAND *parse_tokens(WORD_LIST **rest);
+static COMMAND *parse_simple(WORD_LIST **token_stream);
 
 /* auxilliary functions */
 static int is_char_quote(char c) {
@@ -108,7 +108,6 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
     word->word = strndup(line+start, *posn-start);
     word->flags = W_NORMAL;
     return word;
-
 }
 
 /* token_list
@@ -142,4 +141,37 @@ static WORD_LIST *token_list(const char *line, size_t len)
         tail=token_node;
     }
     return dummy_head.next;    /* the dummy_head.next is the first real token */
+}
+
+static COMMAND *parse_simple(WORD_LIST **token_stream) 
+{
+    if (*token_stream == NULL || token_stream == NULL)
+        return NULL;
+
+    COMMAND *cmd = calloc(1, sizeof *cmd);
+    if (cmd == NULL) 
+        return NULL;
+
+    cmd->type = C_SIMPLE;
+    cmd->flags = 0;
+    
+    /* parse simple deals with linked list of WORD_LIST */
+    WORD_LIST *wl_tail = NULL;
+
+    while(*token_stream) {
+        WORD_DESC *word = (*token_stream)->word;
+
+        WORD_LIST *curr = *token_stream;
+        *token_stream = curr->next;
+
+        curr->next = NULL;
+        if (wl_tail == NULL)
+            cmd->value.simple.words = curr;
+        else
+            wl_tail->next = curr;
+        wl_tail = curr;
+
+    }
+
+    return cmd;
 }

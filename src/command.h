@@ -10,6 +10,9 @@ constexpr int W_VARIABLE = (1 << 1); /* Word starts with $, req. env lookup */
 constexpr int W_OPERATOR = (1 << 2); /* Word is a shell operator {|, <, >, &, ;, >>}*/
 
 
+/* values for flags for COMMAND */
+constexpr int CMD_BACKGROUND = (1 << 0);
+
 
 /* structure representing a word */
 typedef struct word_desc {
