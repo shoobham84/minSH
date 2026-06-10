@@ -250,3 +250,35 @@ COMMAND *parse_line(const char *line, size_t len) {
     WORD_LIST *token_stream = tokens;
     return parse_connection(&token_stream);
 }
+
+
+/* functions to cleanup and free the word list and command */
+static void free_word_list(WORD_LIST *list) {
+    while (list != NULL) {
+        WORD_LIST *next = list->next;
+        if (list->word) {
+            free(list->word->word);
+            free(list->word);
+        }
+        free(list);
+        list = next;
+    }
+}
+
+/* public API free_command */
+void free_command(COMMAND *command) {
+    if (command == NULL)
+        return;
+
+    if (command->type == C_SIMPLE) {
+        free_word_list(command->value.simple.words);
+    }
+    else if (command->type == C_CONNECTION) {
+        free_command(command->value.connection.first);
+        free_command(command->value.connection.second);
+    }
+
+    free(command);
+}
+
+

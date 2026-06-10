@@ -35,6 +35,10 @@ int main() {
             break;
         }
         COMMAND *command = parse_line(buff, bytes_read);
+
+        if (command != NULL) {
+            free_command(command);
+        }
         free(buff); 
     }
     

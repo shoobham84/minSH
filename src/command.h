@@ -11,7 +11,7 @@ constexpr int W_OPERATOR = (1 << 2); /* Word is a shell operator {|, <, >, &, ;,
 
 
 /* values for flags for COMMAND */
-constexpr int CMD_BACKGROUND = (1 << 0);
+constexpr int CMD_BACKGROUND = (1 << 0);  /* command runs in the background, denoted by the '&' symbol */
 
 
 /* structure representing a word */
@@ -41,13 +41,6 @@ typedef struct redirect {
 } REDIRECT;
 
 
-/* describes types of commands, minsh only supports 2 types as of now */
-typedef enum {
-    C_SIMPLE,
-    C_CONNECTION
-} COMMAND_TYPE;
-
-
 /* defines connectors for c_connection command type */
 typedef enum {
     C_PIPE, /* | */
@@ -55,6 +48,13 @@ typedef enum {
     C_AND,  /* && */
     C_OR    /* || */
 } CONNECTOR;
+
+
+/* describes types of commands, minsh only supports 2 types as of now */
+typedef enum {
+    C_SIMPLE,
+    C_CONNECTION
+} COMMAND_TYPE;
 
 
 /* defines what a command is */
