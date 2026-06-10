@@ -235,3 +235,18 @@ static COMMAND *parse_connection(WORD_LIST **token_stream) {
     }
     return leftside;
 }
+
+/* parse_line
+ * public API used inside shell.c to parse commands
+ */
+COMMAND *parse_line(const char *line, size_t len) {
+    if (line == NULL || len == 0)
+        return NULL;
+
+    WORD_LIST *tokens = token_list(line, len);
+    if (tokens == NULL)
+        return NULL;
+
+    WORD_LIST *token_stream = tokens;
+    return parse_connection(&token_stream);
+}

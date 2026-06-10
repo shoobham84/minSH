@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "shell.h"
 #include "command.h"
+#include "parser.h"
 
 #ifndef COREUTILS_PATH
     #define COREUTILS_PATH "/dev/null"
@@ -25,15 +26,15 @@ int main() {
         size_t len = 0;
         
         /* basic getline instead of read syscall */
-        if (getline(&buff, &len, stdin) == -1) {
+        ssize_t bytes_read = getline(&buff, &len, stdin);
+        if (bytes_read == -1) {
             if (interactive) {
                 printf("\n");
             }
             free(buff);
             break;
         }
-        // printf("%s", buff);
-        // COMMAND *cmnd = parse_line(buff, len);
+        COMMAND *command = parse_line(buff, bytes_read);
         free(buff); 
     }
     
