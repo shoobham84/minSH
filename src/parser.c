@@ -1,4 +1,4 @@
-/* parser.c - handles all parsing operations of the shell */
+/* parser.c - LL(1) parser handling all parsing operations of the shell */
 #include "parser.h"
 #include <ctype.h>
 #include <stdlib.h>
@@ -58,6 +58,9 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
     while(*posn < len && isspace((unsigned char)line[*posn]))
         (*posn)++;
 
+    if (*posn >= len)
+        return NULL;
+
     WORD_DESC *word = calloc(1, sizeof *word); 
     if (word == NULL)
         return NULL;
@@ -65,7 +68,6 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
     size_t start = *posn;
     char c; 
 
-    /* checks for quoted strings in the command */
     if (is_char_quote((c = line[start]))) {
         word->flags = W_QUOTED;
         char quote = c;
@@ -77,10 +79,12 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
 
         word->word = strndup(line+qstart, *posn-qstart);
 
+        if (*posn < len)
+            (*posn)++;
+
         return word;
     }
 
-    /* checks for operators in the command */
     size_t op_len;
     if (is_char_operator(c) && scan_operator(line, len, start, &op_len)) {
         word->flags = W_OPERATOR;
@@ -89,7 +93,6 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
         return word;
     }
 
-    /* checks for variables in the command; variables in minsh start with a '$' */
     if (is_char_variable(c)) {
         word->flags = W_VARIABLE;
         (*posn)++;
@@ -101,7 +104,6 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
         return word;
     }
 
-    /* normal word tokenizing */
     while (*posn < len && !isspace((unsigned char)line[*posn]) && !is_char_operator(line[*posn]) && !is_char_quote(line[*posn]))
         (*posn)++;
 
@@ -115,7 +117,7 @@ static WORD_DESC *tokenizer(const char *line, size_t len, size_t *posn)
  */
 static WORD_LIST *token_list(const char *line, size_t len)
 {
-    WORD_LIST dummy_head;           /* uses an empty dummy_head as the first element of the linked list of WORD_DESCs (token_list) */
+    WORD_LIST dummy_head;          
     dummy_head.word = NULL;
     dummy_head.next = NULL;
 
@@ -140,12 +142,12 @@ static WORD_LIST *token_list(const char *line, size_t len)
         tail->next = token_node;
         tail=token_node;
     }
-    return dummy_head.next;    /* the dummy_head.next is the first real token */
+    return dummy_head.next;   
 }
 
 static COMMAND *parse_simple(WORD_LIST **token_stream) 
 {
-    if (*token_stream == NULL || token_stream == NULL)
+    if (token_stream == NULL || *token_stream == NULL)
         return NULL;
 
     COMMAND *cmd = calloc(1, sizeof *cmd);
@@ -155,11 +157,13 @@ static COMMAND *parse_simple(WORD_LIST **token_stream)
     cmd->type = C_SIMPLE;
     cmd->flags = 0;
     
-    /* parse simple deals with linked list of WORD_LIST */
     WORD_LIST *wl_tail = NULL;
 
     while(*token_stream) {
         WORD_DESC *word = (*token_stream)->word;
+
+        if (word->flags & W_OPERATOR)
+            break;
 
         WORD_LIST *curr = *token_stream;
         *token_stream = curr->next;
