@@ -21,6 +21,24 @@ static int is_char_operator(char c) {
     return c == '|' || c == '&' || c == ';' || c == '<' || c == '>';
 }
 
+static CONNECTOR connector_for(WORD_LIST token) {
+    char *connector = token.word->word;
+
+    if (strcmp(connector, "|") == 0) 
+        return C_PIPE;
+    
+    else if (strcmp(connector, ";") == 0) 
+        return C_SEMI;
+    
+    else if (strcmp(connector, "&&") == 0) 
+        return C_AND;
+    
+    else if (strcmp(connector, "||") == 0) 
+        return C_OR;
+    
+    return -1;
+}
+
 static int scan_operator(const char *line, size_t len, size_t posn, size_t *op_len) {
     static const struct { 
         const char *str;
@@ -178,4 +196,42 @@ static COMMAND *parse_simple(WORD_LIST **token_stream)
     }
 
     return cmd;
+}
+
+/* parse_connection
+ * builds the connection tree (pipes, &&, ||, ;)
+ */
+static COMMAND *parse_connection(WORD_LIST **token_stream) {
+    COMMAND *leftside = parse_simple(token_stream);
+    if (leftside == NULL)
+        return NULL;
+
+    while(*token_stream) {
+        CONNECTOR connector_type = connector_for(**token_stream);
+        if (connector_type == -1)
+            break;
+
+        WORD_DESC *connector = (*token_stream)->word;
+
+        WORD_LIST *node = *token_stream;
+        *token_stream = node->next;
+        
+        free(connector->word);
+        free(connector);      
+        free(node);           
+
+        COMMAND *rightside = parse_simple(token_stream);
+        COMMAND *final_cmd = calloc(1, sizeof *final_cmd);
+        if (final_cmd == NULL)
+            return NULL;
+
+        final_cmd->type = C_CONNECTION;
+        final_cmd->flags = 0;
+        final_cmd->value.connection.first = leftside;
+        final_cmd->value.connection.second = rightside;
+        final_cmd->value.connection.connector = connector_type;
+
+        leftside = final_cmd;
+    }
+    return leftside;
 }
